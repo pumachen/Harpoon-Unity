@@ -1,0 +1,20 @@
+{
+  "name": "com.pum4ch3n.harpoon",
+  "version": "0.1.0",
+  "displayName": "Harpoon",
+  "description": "Harpoon Unity Plugin",
+  "unity": "2018.1",
+  "documentationUrl": "",
+  "changelogUrl": "",
+  "licenseUrl": "",
+  "dependencies": {
+    "com.unity.editorcoroutines": "1.0.0"
+  },
+  "keywords": [],
+  "author": {
+    "name": "PUM4CH3N",
+    "email": "",
+    "url": ""
+  },
+  "type": "tool"
+}
