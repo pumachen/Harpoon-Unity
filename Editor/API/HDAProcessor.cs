@@ -40,7 +40,18 @@ namespace Harpoon
 			});
 		}
 
-		public static void ProcessHDAAsync(string hda, List<HouParm> parms, Action<ZipArchive> completed, Action failed = null, int timeout = 60)
+		public static void ProcessHDAAsync(string hda, List<HouParm> parms, Action<ZipArchive> completed, Action failed = null, int timeout = 120)
+		{
+			ProcessHDAAsync(hda, parms, completed, failed, timeout);
+		}
+		
+		public static void ProcessHDAAsync(this HDAProcessorPreset preset, Action<ZipArchive> completed, Action failed = null, int timeout = 120)
+		{
+			ProcessHDAAsync(preset.hda, preset.parms, completed, failed, timeout);
+		}
+		
+		private static void ProcessHDAAsync(string hda, IEnumerable<HouParm> parms, Action<ZipArchive> completed,
+			Action failed = null, int timeout = 120)
 		{
 			Uri uri = GetUri(hda);
 			List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
@@ -48,7 +59,7 @@ namespace Harpoon
 			{
 				formData.Add(parm.formSection);
 			}
-
+		
 			string downloadedFile = Path.Combine(Path.GetDirectoryName(Application.dataPath), "Temp", $"Harpoon_Response{DateTime.Now.Ticks}.zip");
 			UnityWebRequest post = UnityWebRequest.Post(uri, formData);
 			post.useHttpContinue = false;
@@ -70,16 +81,6 @@ namespace Harpoon
 					failed?.Invoke();
 				}
 			});
-		}
-
-		public static void ProcessHDAAsync(this HDAProcessorPreset preset, Action<ZipArchive> completed, Action failed)
-		{
-			Uri uri = GetUri(preset.hda);
-			List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
-			foreach (var parm in preset.parms)
-			{
-				formData.Add(parm.formSection);
-			}
 		}
 	}
 }

@@ -109,7 +109,7 @@ namespace Harpoon
 			}
 			else if (GUILayout.Button("Cook"))
 			{
-				Process();
+				Cook();
 			}
 		}
 
@@ -132,7 +132,7 @@ namespace Harpoon
 			AssetDatabase.CreateAsset(hdaProcessorJob, fileName);
 		}
 
-		void Process()
+		void Cook()
 		{
 			progress = 0.0f;
 			HDAProcessor.ProcessHDAAsync(hda, parms, 
