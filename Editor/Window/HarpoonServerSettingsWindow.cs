@@ -14,15 +14,11 @@ namespace Harpoon
             EditorWindow.GetWindow<HarpoonServerSettingsWindow>().Show();
         }
 
-        //private string scheme;
-        private string host;
-        private int port;
+        private string url;
 
         private void ReloadServerSettings()
         {
-            //scheme = HarpoonServerSettings.scheme;
-            host = HarpoonServerSettings.host;
-            port = HarpoonServerSettings.port;
+            url = HarpoonServerSettings.url;
         }
 
         private void OnEnable()
@@ -32,8 +28,7 @@ namespace Harpoon
 
         private void OnGUI()
         {
-            host = EditorGUILayout.TextField("Host", host);
-            port = EditorGUILayout.IntField("Port", port);
+            url = EditorGUILayout.TextField("URL", url);
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Revert"))
             {
@@ -41,8 +36,7 @@ namespace Harpoon
             }
             if (GUILayout.Button("Apply"))
             {
-                HarpoonServerSettings.host = host;
-                HarpoonServerSettings.port = port;
+                HarpoonServerSettings.url = url;
             }
             EditorGUILayout.EndHorizontal();
         }

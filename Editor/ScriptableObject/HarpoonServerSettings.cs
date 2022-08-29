@@ -12,11 +12,7 @@ namespace Harpoon
 	public class HarpoonServerSettings
 	{
 		[SerializeField]
-		public string m_host = "127.0.0.1";
-		[SerializeField]
-		public string m_scheme = "http";
-		[SerializeField]
-		public int m_port = 80;
+		public string m_url = "http://127.0.0.1:80";
 		
 		static string path => Path.Combine(Application.dataPath, "../ProjectSettings/Packages/com.pum4ch3n.harpoon/HarpoonServerSettings.json");
 
@@ -49,32 +45,14 @@ namespace Harpoon
 			}
 		}
 
-		public static string host
+		public static string url
 		{
-			get => instance.m_host;
+			get => instance.m_url;
 			set
 			{
-				if (string.Compare(host, value) != 0)
+				if (string.Compare(url, value) != 0)
 				{
-					instance.m_host = value;
-					File.WriteAllText(path, JsonConvert.SerializeObject(instance));
-				}
-			}
-		}
-		
-		public static string scheme
-		{
-			get => instance.m_scheme;
-		}
-
-		public static int port
-		{
-			get => instance.m_port;
-			set
-			{
-				if (value != port)
-				{
-					instance.m_port = value;
+					instance.m_url = value;
 					File.WriteAllText(path, JsonConvert.SerializeObject(instance));
 				}
 			}

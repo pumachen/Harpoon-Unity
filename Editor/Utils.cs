@@ -9,11 +9,7 @@ namespace Harpoon.Utils
 {
 	public static class HarpoonUriBuilder
 	{
-		private static string host => HarpoonServerSettings.host;
-		private static string scheme => HarpoonServerSettings.scheme;
-		private static int port => HarpoonServerSettings.port;
-		
-		public static Uri Root => new UriBuilder(scheme, host, port).Uri;
+		public static Uri Root => new Uri(HarpoonServerSettings.url);
 	}
 
     public static class WebRequestUtility
