@@ -139,7 +139,11 @@ namespace Harpoon
 				zip =>
 				{
 					string outputDir = EditorUtility.SaveFolderPanel("Output Dir", Application.dataPath, "Output");
-					zip.ExtractToDirectory(outputDir, true);
+					if (outputDir != null)
+					{
+						zip.ExtractToDirectory(outputDir, true);
+						AssetDatabase.Refresh();
+					}
 					progress = 1.0f;
 				});
 		}

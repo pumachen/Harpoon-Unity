@@ -1,11 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Linq;
 using System.IO;
-using System.Net.Http;
-using System.Text;
 using Newtonsoft.Json;
 using UnityEditor;
+using UnityEditor.Formats.Fbx.Exporter;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -88,7 +89,9 @@ namespace Harpoon
         public StringParmTemplate template;
 
         [SerializeField]
-        private Texture2D texture;
+        public Texture2D texture;
+        [SerializeField]
+        public GameObject model;
 
         public string value;
 
@@ -110,13 +113,14 @@ namespace Harpoon
                         case FileType.Fbx:
                         case FileType.Usd:
                         {
-                            EditorGUILayout.LabelField("Geometry parameters are not supported");
+                            model = EditorGUILayout.ObjectField(template.label, model, typeof(GameObject), true) as GameObject;
+                            value = "";
                             break;
                         }
                         case FileType.Image:
                         {
                             texture = EditorGUILayout.ObjectField(template.label, texture, typeof(Texture2D), true) as Texture2D;
-                            value = texture == null ? "" : Path.GetFileName(AssetDatabase.GetAssetPath(texture));
+                            value = "";
                             break;
                         }
                     }
@@ -140,7 +144,6 @@ namespace Harpoon
                 }
                 if (AssetDatabase.Contains(texture))
                 {
-                    //return texture.EncodeToEXR();
                     string path = Path.GetFullPath(
                         AssetDatabase.GetAssetPath(texture), 
                         Path.GetDirectoryName(Application.dataPath));
@@ -151,7 +154,43 @@ namespace Harpoon
                     return texture.EncodeToEXR();
                 }
             }
-            
+        }
+
+        byte[] rawModel
+        {
+            get
+            {
+                if (model == null)
+                {
+                    return new byte[0];
+                }
+                string path = Path.Combine(Application.temporaryCachePath,
+                    $"{template.name}_{model.GetInstanceID()}.fbx");
+                ExportBinaryFBX(path, model);
+                var rawFBX = File.ReadAllBytes(path);
+                File.WriteAllBytes(Path.Combine(Application.temporaryCachePath, "TMP.fbx"), rawFBX);
+                return rawFBX;
+            }
+        }
+        
+        private static void ExportBinaryFBX (string filePath, UnityEngine.Object singleObject)
+        {
+            // Find relevant internal types in Unity.Formats.Fbx.Editor assembly
+            Type[] types = AppDomain.CurrentDomain.GetAssemblies().First(x => x.FullName == "Unity.Formats.Fbx.Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null").GetTypes();
+            Type optionsInterfaceType = types.First(x => x.Name == "IExportOptions");
+            Type optionsType = types.First(x => x.Name == "ExportOptionsSettingsSerializeBase");
+ 
+            // Instantiate a settings object instance
+            MethodInfo optionsProperty = typeof(ModelExporter).GetProperty("DefaultOptions", BindingFlags.Static | BindingFlags.NonPublic).GetGetMethod(true);
+            object optionsInstance = optionsProperty.Invoke(null, null);
+ 
+            // Change the export setting from ASCII to binary
+            FieldInfo exportFormatField = optionsType.GetField("exportFormat", BindingFlags.Instance | BindingFlags.NonPublic);
+            exportFormatField.SetValue(optionsInstance, 1);
+ 
+            // Invoke the ExportObject method with the settings param
+            MethodInfo exportObjectMethod = typeof(ModelExporter).GetMethod("ExportObject", BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new Type[] { typeof(string), typeof(UnityEngine.Object), optionsInterfaceType }, null);
+            exportObjectMethod.Invoke(null, new object[] { filePath, singleObject, optionsInstance });
         }
 
         public override IMultipartFormSection formSection
@@ -162,12 +201,15 @@ namespace Harpoon
                     && template.fileType == FileType.Image
                     && texture != null)
                 {
-                    return new MultipartFormFileSection(template.name, rawTexture, "Heightmap.exr", "image/aces");
+                    return new MultipartFormFileSection(template.name, rawTexture, $"{template.name}_{texture.GetInstanceID()}.exr", "image/aces");
                 }
-                else
+                if (template.stringType == StringParmType.FileReference
+                    && template.fileType == FileType.Geometry
+                    && model != null)
                 {
-                    return new MultipartFormDataSection(template.name, JsonConvert.SerializeObject(value));   
+                    return new MultipartFormFileSection(template.name, rawModel, $"{template.name}_{model.GetInstanceID()}.fbx", "image/aces");
                 }
+                return new MultipartFormDataSection(template.name, JsonConvert.SerializeObject(value));   
             }
         }
     }
