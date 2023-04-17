@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.IO;
 using System.IO.Compression;
+using DotLiquid.Util;
 using Newtonsoft.Json;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
@@ -36,8 +37,27 @@ namespace Harpoon
 				{
 					Debug.LogError(request.error);
 					failed?.Invoke();
-				}	
+				}
 			});
+		}
+
+		public static IEnumerator GetHDAHeaderRoutine(string hdaName, Action<dynamic> completed, Action failed = null)
+		{
+			Uri uri = GetUri(hdaName);
+			using (UnityWebRequest get = UnityWebRequest.Get(uri))
+			{
+				var request = get.SendWebRequest();
+				while (!request.isDone)
+					yield return null;
+				if (get.result != UnityWebRequest.Result.Success)
+				{
+					if (failed == null)
+						Debug.LogError(get.error);
+					else
+						failed?.Invoke();
+				}
+				completed?.Invoke(JsonConvert.DeserializeObject(get.downloadHandler.text));
+			}
 		}
 
 		public static void ProcessHDAAsync(this HDAProcessorPreset preset, Action<ZipArchive> completed, Action failed = null, int timeout = 120)
@@ -55,7 +75,7 @@ namespace Harpoon
 				formData.Add(parm.formSection);
 			}
 		
-			string downloadedFile = Path.Combine(Path.GetDirectoryName(Application.dataPath), "Temp", $"Harpoon_Response{DateTime.Now.Ticks}.zip");
+			string downloadedFile = Path.Combine(Path.GetDirectoryName(Application.temporaryCachePath), "Temp", $"Harpoon_Response{DateTime.Now.Ticks}.zip");
 			UnityWebRequest post = UnityWebRequest.Post(uri, formData);
 			post.useHttpContinue = false;
 			post.timeout = timeout;
@@ -68,14 +88,50 @@ namespace Harpoon
 					{
 						completed?.Invoke(zipArchive);
 					}
+
 					File.Delete(downloadedFile);
 				}
 				else
 				{
-					Debug.LogError(request.error);
 					failed?.Invoke();
 				}
 			});
+		}
+		
+		public static IEnumerator ProcessHDARoutine(string hda, IEnumerable<HouParm> parms, Action<ZipArchive> completed,
+        			Action failed = null, int timeout = 120)
+		{
+			Uri uri = GetUri(hda);
+			List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
+			foreach (var parm in parms)
+			{
+				formData.Add(parm.formSection);
+			}
+			string downloadedFile = Path.Combine(Path.GetDirectoryName(Application.temporaryCachePath), "Temp", $"Harpoon_Response{DateTime.Now.Ticks}.zip");
+			using (UnityWebRequest post = UnityWebRequest.Post(uri, formData))
+            {
+				post.useHttpContinue = false;
+				post.timeout = timeout;
+				post.downloadHandler = new DownloadHandlerFile(downloadedFile);
+            	var request = post.SendWebRequest();
+                while (!request.isDone)
+	                yield return null;
+            	if (post.result == UnityWebRequest.Result.Success)
+            	{
+	                using (var zipArchive = ZipFile.OpenRead(downloadedFile))
+                    {
+                        completed?.Invoke(zipArchive);
+                    }
+            	}
+                else
+                {
+            		if (failed == null)
+            			Debug.LogError(post.error);
+            		else
+            			failed?.Invoke();
+                }
+                File.Delete(downloadedFile);
+            }
 		}
 	}
 }

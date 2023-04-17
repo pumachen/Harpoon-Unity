@@ -23,6 +23,7 @@ namespace Harpoon.Utils
 		{
 			yield return request.SendWebRequest();
 			completed?.Invoke(request);
+			request.Dispose();
 		}
     }
 }

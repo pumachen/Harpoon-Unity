@@ -19,7 +19,7 @@ namespace Harpoon
 		private int hdaIdx = 0;
 		private string[] hdas = new string[0];
 		private string[] hdaNames = new string[0];
-		private List<HouParm> parms;
+		private HouParm[] parms;
 		private float progress = 1.0f;
 
 		private string hda => hdas[hdaIdx];
@@ -51,32 +51,8 @@ namespace Harpoon
 		{
 			HDAProcessor.GetHDAHeaderAsync(hda, (hdaHeader) =>
 			{
-				var parmTemplates = hdaHeader.parmTemplateGroup.parmTemplates;
-				parms = new List<HouParm>();
-				for (int i = 0; i < parmTemplates.Count; ++i)
-				{
-					ParmTemplate parmTemplate = parmTemplates[i].ToObject<ParmTemplate>();
-					if (parmTemplate.isHidden)
-						continue;
-					switch (parmTemplate.dataType)
-					{
-						case (ParmData.Int):
-						{
-							parms.Add(new IntParm(parmTemplates[i].ToObject<IntParmTemplate>()));
-							break;
-						}
-						case (ParmData.Float):
-						{
-							parms.Add(new FloatParm(parmTemplates[i].ToObject<FloatParmTemplate>()));
-							break;
-						}
-						case (ParmData.String):
-						{
-							parms.Add(new StringParm(parmTemplates[i].ToObject<StringParmTemplate>()));
-							break;
-						}
-					}
-				}
+				IEnumerable<HouParm> _parms = HouParm.CreateParms(hdaHeader);
+				parms = _parms.ToArray();
 			});
 		}
 

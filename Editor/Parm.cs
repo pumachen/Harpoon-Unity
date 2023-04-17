@@ -9,6 +9,7 @@ using UnityEditor;
 using UnityEditor.Formats.Fbx.Exporter;
 using UnityEngine;
 using UnityEngine.Networking;
+using Object = UnityEngine.Object;
 
 namespace Harpoon
 {
@@ -19,6 +20,36 @@ namespace Harpoon
         public abstract void GUILayout();
 
         public abstract IMultipartFormSection formSection { get; }
+        public string name => parmTemplate.name;
+        
+        public static IEnumerable<HouParm> CreateParms(dynamic hdaHeader)
+        {
+            IEnumerable<dynamic> parmTemplates = hdaHeader.parmTemplateGroup.parmTemplates;
+            foreach (var parmTemplate in parmTemplates)
+            {
+                ParmTemplate template = parmTemplate.ToObject<ParmTemplate>();
+                if (template.isHidden)
+                    continue;
+                switch (template.dataType)
+                {
+                    case (ParmData.Int):
+                    {
+                        yield return new IntParm(parmTemplate.ToObject<IntParmTemplate>());
+                        break;
+                    }
+                    case (ParmData.Float):
+                    {
+                        yield return new FloatParm(parmTemplate.ToObject<FloatParmTemplate>());
+                        break;
+                    }
+                    case (ParmData.String):
+                    {
+                        yield return new StringParm(parmTemplate.ToObject<StringParmTemplate>());
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     [Serializable]
@@ -166,11 +197,21 @@ namespace Harpoon
                 }
                 string path = Path.Combine(Application.temporaryCachePath,
                     $"{template.name}_{model.GetInstanceID()}.fbx");
-                ExportBinaryFBX(path, model);
+                ExportFBX(path, model);
                 var rawFBX = File.ReadAllBytes(path);
                 File.WriteAllBytes(Path.Combine(Application.temporaryCachePath, "TMP.fbx"), rawFBX);
                 return rawFBX;
             }
+        }
+
+        private static void ExportFBX(string path, GameObject model)
+        {
+            model = GameObject.Instantiate(model);
+            ExportModelOptions exportSettings = new ExportModelOptions();
+            exportSettings.ExportFormat = ExportFormat.Binary;
+            exportSettings.EmbedTextures = true;
+            ModelExporter.ExportObject(path, model, exportSettings);
+            Object.DestroyImmediate(model);
         }
         
         private static void ExportBinaryFBX (string filePath, UnityEngine.Object singleObject)
