@@ -99,7 +99,7 @@ namespace Harpoon
 		}
 		
 		public static IEnumerator ProcessHDARoutine(string hda, IEnumerable<HouParm> parms, Action<ZipArchive> completed,
-        			Action failed = null, int timeout = 120)
+        			Action failed = null, int timeout = 300)
 		{
 			Uri uri = GetUri(hda);
 			List<IMultipartFormSection> formData = new List<IMultipartFormSection>();

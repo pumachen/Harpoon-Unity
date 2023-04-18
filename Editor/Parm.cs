@@ -122,6 +122,8 @@ namespace Harpoon
         [SerializeField]
         public Texture2D texture;
         [SerializeField]
+        public bool embedTexture;
+        [SerializeField]
         public GameObject model;
 
         public string value;
@@ -145,6 +147,7 @@ namespace Harpoon
                         case FileType.Usd:
                         {
                             model = EditorGUILayout.ObjectField(template.label, model, typeof(GameObject), true) as GameObject;
+                            embedTexture = EditorGUILayout.Toggle("Embed Texture", embedTexture);
                             value = "";
                             break;
                         }
@@ -197,43 +200,23 @@ namespace Harpoon
                 }
                 string path = Path.Combine(Application.temporaryCachePath,
                     $"{template.name}_{model.GetInstanceID()}.fbx");
-                ExportFBX(path, model);
+                ExportFBX(path, model, embedTexture);
                 var rawFBX = File.ReadAllBytes(path);
                 File.WriteAllBytes(Path.Combine(Application.temporaryCachePath, "TMP.fbx"), rawFBX);
                 return rawFBX;
             }
         }
 
-        private static void ExportFBX(string path, GameObject model)
+        private static void ExportFBX(string path, GameObject model, bool embedTexture)
         {
             model = GameObject.Instantiate(model);
             ExportModelOptions exportSettings = new ExportModelOptions();
             exportSettings.ExportFormat = ExportFormat.Binary;
-            exportSettings.EmbedTextures = true;
+            exportSettings.EmbedTextures = embedTexture;
             ModelExporter.ExportObject(path, model, exportSettings);
             Object.DestroyImmediate(model);
         }
         
-        private static void ExportBinaryFBX (string filePath, UnityEngine.Object singleObject)
-        {
-            // Find relevant internal types in Unity.Formats.Fbx.Editor assembly
-            Type[] types = AppDomain.CurrentDomain.GetAssemblies().First(x => x.FullName == "Unity.Formats.Fbx.Editor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null").GetTypes();
-            Type optionsInterfaceType = types.First(x => x.Name == "IExportOptions");
-            Type optionsType = types.First(x => x.Name == "ExportOptionsSettingsSerializeBase");
- 
-            // Instantiate a settings object instance
-            MethodInfo optionsProperty = typeof(ModelExporter).GetProperty("DefaultOptions", BindingFlags.Static | BindingFlags.NonPublic).GetGetMethod(true);
-            object optionsInstance = optionsProperty.Invoke(null, null);
- 
-            // Change the export setting from ASCII to binary
-            FieldInfo exportFormatField = optionsType.GetField("exportFormat", BindingFlags.Instance | BindingFlags.NonPublic);
-            exportFormatField.SetValue(optionsInstance, 1);
- 
-            // Invoke the ExportObject method with the settings param
-            MethodInfo exportObjectMethod = typeof(ModelExporter).GetMethod("ExportObject", BindingFlags.Static | BindingFlags.NonPublic, Type.DefaultBinder, new Type[] { typeof(string), typeof(UnityEngine.Object), optionsInterfaceType }, null);
-            exportObjectMethod.Invoke(null, new object[] { filePath, singleObject, optionsInstance });
-        }
-
         public override IMultipartFormSection formSection
         {
             get
@@ -248,7 +231,7 @@ namespace Harpoon
                     && template.fileType == FileType.Geometry
                     && model != null)
                 {
-                    return new MultipartFormFileSection(template.name, rawModel, $"{template.name}_{model.GetInstanceID()}.fbx", "image/aces");
+                    return new MultipartFormFileSection(template.name, rawModel, $"{template.name}_{model.GetInstanceID()}.fbx", "multipart/form-data");
                 }
                 return new MultipartFormDataSection(template.name, JsonConvert.SerializeObject(value));   
             }
