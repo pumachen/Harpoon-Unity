@@ -21,6 +21,7 @@ namespace Harpoon
 		private string[] hdaNames = new string[0];
 		private HouParm[] parms;
 		private float progress = 1.0f;
+		private static int timeout = 300;
 
 		private string hda => hdas[hdaIdx];
 	
@@ -72,6 +73,8 @@ namespace Harpoon
 					parm.GUILayout();
 				}
 			}
+			
+			timeout = Mathf.Max(30, EditorGUILayout.IntField("Timeout(s)", timeout));
 
 			if (GUILayout.Button("Save As Preset"))
 			{
@@ -84,9 +87,9 @@ namespace Harpoon
 				EditorGUI.ProgressBar(rect, progress, "Cooking");
 			}
 			else if (GUILayout.Button("Cook"))
-			{
-				Cook();
-			}
+            {
+            	Cook();
+            }
 		}
 
 		void CreateHDAProcessorPreset()
@@ -121,7 +124,7 @@ namespace Harpoon
 						AssetDatabase.Refresh();
 					}
 					progress = 1.0f;
-				});
+				}, timeout: timeout);
 		}
 	}
 }

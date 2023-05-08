@@ -19,6 +19,8 @@ namespace Harpoon
                 parm.GUILayout();
             }
 
+            target.timeout = EditorGUILayout.IntField("Timeout(s)", target.timeout);
+
             if (GUILayout.Button("Cook"))
             {
 				HDAProcessor.ProcessHDAAsync(target, 
@@ -26,7 +28,7 @@ namespace Harpoon
 					{
 						string outputDir = EditorUtility.SaveFolderPanel("Output Dir", Application.dataPath, "Output");
 						zip.ExtractToDirectory(outputDir, true);
-					});
+					}, timeout: target.timeout);
             }
         }
     }

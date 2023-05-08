@@ -60,13 +60,13 @@ namespace Harpoon
 			}
 		}
 
-		public static void ProcessHDAAsync(this HDAProcessorPreset preset, Action<ZipArchive> completed, Action failed = null, int timeout = 120)
+		public static void ProcessHDAAsync(this HDAProcessorPreset preset, Action<ZipArchive> completed, Action failed = null, int timeout = 300)
 		{
 			ProcessHDAAsync(preset.hda, preset.parms, completed, failed, timeout);
 		}
 		
 		public static void ProcessHDAAsync(string hda, IEnumerable<HouParm> parms, Action<ZipArchive> completed,
-			Action failed = null, int timeout = 120)
+			Action failed = null, int timeout = 300)
 		{
 			Uri uri = GetUri(hda);
 			List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
