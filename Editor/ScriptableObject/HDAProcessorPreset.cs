@@ -11,7 +11,7 @@ namespace Harpoon
         public IntParm[] intParms;
         public FloatParm[] floatParms;
         public StringParm[] stringParms;
-        public int timeout = 300;
+        public int timeout = 3000;
 
         public IEnumerable<HouParm> parms
         {
