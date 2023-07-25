@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.IO;
 using System.IO.Compression;
-using DotLiquid.Util;
 using Newtonsoft.Json;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
@@ -66,7 +65,7 @@ namespace Harpoon
 		}
 		
 		public static void ProcessHDAAsync(string hda, IEnumerable<HouParm> parms, Action<ZipArchive> completed,
-			Action failed = null, int timeout = 300)
+			Action failed = null, int timeout = 3000)
 		{
 			Uri uri = GetUri(hda);
 			List<IMultipartFormSection> formData = new List<IMultipartFormSection>();

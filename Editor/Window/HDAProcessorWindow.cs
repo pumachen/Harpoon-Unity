@@ -21,7 +21,7 @@ namespace Harpoon
 		private string[] hdaNames = new string[0];
 		private HouParm[] parms;
 		private float progress = 1.0f;
-		private static int timeout = 300;
+		private static int timeout = 3000;
 
 		private string hda => hdas[hdaIdx];
 	
