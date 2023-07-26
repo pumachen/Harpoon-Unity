@@ -10,7 +10,8 @@
   "dependencies": {
     "com.unity.editorcoroutines": "1.0.0",
     "com.unity.nuget.newtonsoft-json": "3.2.1",
-    "com.unity.formats.usd": "3.0.0-exp.4"
+    "com.unity.formats.usd": "3.0.0-exp.4",
+    "com.unity.formats.fbx": "5.0.0"
   },
   "keywords": [],
   "author": {
