@@ -14,7 +14,7 @@ using Object = UnityEngine.Object;
 namespace Harpoon
 {
     [Serializable]
-    public abstract class HouParm
+    public abstract class Parm
     {
         public abstract ParmTemplate parmTemplate { get; }
         public abstract void GUILayout();
@@ -22,7 +22,7 @@ namespace Harpoon
         public abstract IMultipartFormSection formSection { get; }
         public string name => parmTemplate.name;
         
-        public static IEnumerable<HouParm> CreateParms(dynamic hdaHeader)
+        public static IEnumerable<Parm> CreateParms(dynamic hdaHeader)
         {
             IEnumerable<dynamic> parmTemplates = hdaHeader.parmTemplateGroup.parmTemplates;
             foreach (var parmTemplate in parmTemplates)
@@ -53,7 +53,7 @@ namespace Harpoon
     }
 
     [Serializable]
-    public class FloatParm : HouParm
+    public class FloatParm : Parm
     {
         public override ParmTemplate parmTemplate => template;
         public FloatParmTemplate template;
@@ -84,7 +84,7 @@ namespace Harpoon
     }
     
     [Serializable]
-    public class IntParm : HouParm
+    public class IntParm : Parm
     {
         public override ParmTemplate parmTemplate => template;
         public IntParmTemplate template;
@@ -114,7 +114,7 @@ namespace Harpoon
     }
     
     [Serializable]
-    public class StringParm : HouParm
+    public class StringParm : Parm
     {
         public override ParmTemplate parmTemplate => template;
         public StringParmTemplate template;

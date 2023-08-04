@@ -19,7 +19,7 @@ namespace Harpoon
 		private int hdaIdx = 0;
 		private string[] hdas = new string[0];
 		private string[] hdaNames = new string[0];
-		private HouParm[] parms;
+		private Parm[] parms;
 		private float progress = 1.0f;
 		private static int timeout = 3000;
 
@@ -52,7 +52,7 @@ namespace Harpoon
 		{
 			HDAProcessor.GetHDAHeaderAsync(hda, (hdaHeader) =>
 			{
-				IEnumerable<HouParm> _parms = HouParm.CreateParms(hdaHeader);
+				IEnumerable<Parm> _parms = Parm.CreateParms(hdaHeader);
 				parms = _parms.ToArray();
 			});
 		}
