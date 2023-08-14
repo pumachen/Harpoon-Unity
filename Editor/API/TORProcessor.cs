@@ -15,16 +15,16 @@ using UnityEditor.PackageManager;
 
 namespace Harpoon
 {
-	public static class HDAProcessor
+	public static class TORProcessor
 	{
-		private static Uri GetUri(string hdaName)
+		private static Uri GetUri(string torName)
 		{
-			return new Uri(HarpoonUriBuilder.Root, $"api/hdaprocessor/{hdaName}");
+			return new Uri(HarpoonUriBuilder.Root, $"api/torprocessor/{torName}");
 		}
 		
-		public static void GetHDAHeaderAsync(string hdaName, Action<dynamic> completed, Action failed = null)
+		public static void GetTORHeaderAsync(string torName, Action<dynamic> completed, Action failed = null)
 		{
-			Uri uri = GetUri(hdaName);
+			Uri uri = GetUri(torName);
 			UnityWebRequest request = UnityWebRequest.Get(uri);
 			request.SendWebRequest((request) =>
 			{
@@ -40,9 +40,9 @@ namespace Harpoon
 			});
 		}
 
-		public static IEnumerator GetHDAHeaderRoutine(string hdaName, Action<dynamic> completed, Action failed = null)
+		public static IEnumerator GetTORHeaderRoutine(string torName, Action<dynamic> completed, Action failed = null)
 		{
-			Uri uri = GetUri(hdaName);
+			Uri uri = GetUri(torName);
 			using (UnityWebRequest get = UnityWebRequest.Get(uri))
 			{
 				var request = get.SendWebRequest();
@@ -59,15 +59,15 @@ namespace Harpoon
 			}
 		}
 
-		public static void ProcessHDAAsync(this HDAProcessorPreset preset, Action<ZipArchive> completed, Action failed = null, int timeout = 300)
+		/*public static void ProcessTORAsync(this TORProcessorPreset preset, Action<ZipArchive> completed, Action failed = null, int timeout = 300)
 		{
-			ProcessHDAAsync(preset.hda, preset.parms, completed, failed, timeout);
-		}
+			ProcessTORAsync(preset.tor, preset.parms, completed, failed, timeout);
+		}*/
 		
-		public static void ProcessHDAAsync(string hda, IEnumerable<Parm> parms, Action<ZipArchive> completed,
+		public static void ProcessTORAsync(string tor, IEnumerable<Parm> parms, Action<ZipArchive> completed,
 			Action failed = null, int timeout = 3000)
 		{
-			Uri uri = GetUri(hda);
+			Uri uri = GetUri(tor);
 			List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
 			foreach (var parm in parms)
 			{
@@ -97,10 +97,10 @@ namespace Harpoon
 			});
 		}
 		
-		public static IEnumerator ProcessHDARoutine(string hda, IEnumerable<Parm> parms, Action<ZipArchive> completed,
+		public static IEnumerator ProcessTORRoutine(string tor, IEnumerable<Parm> parms, Action<ZipArchive> completed,
         			Action failed = null, int timeout = 300)
 		{
-			Uri uri = GetUri(hda);
+			Uri uri = GetUri(tor);
 			List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
 			foreach (var parm in parms)
 			{

@@ -13,7 +13,7 @@ namespace Harpoon
         public StringParm[] stringParms;
         public int timeout = 3000;
 
-        public IEnumerable<HouParm> parms
+        public IEnumerable<Parm> parms
         {
             get
             {

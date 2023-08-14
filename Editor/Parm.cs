@@ -14,7 +14,7 @@ using Object = UnityEngine.Object;
 namespace Harpoon
 {
     [Serializable]
-    public abstract class HouParm
+    public abstract class Parm
     {
         public abstract ParmTemplate parmTemplate { get; }
         public abstract void GUILayout();
@@ -22,14 +22,12 @@ namespace Harpoon
         public abstract IMultipartFormSection formSection { get; }
         public string name => parmTemplate.name;
         
-        public static IEnumerable<HouParm> CreateParms(dynamic hdaHeader)
+        public static IEnumerable<Parm> CreateParms(dynamic parmTemplateGroup)
         {
-            IEnumerable<dynamic> parmTemplates = hdaHeader.parmTemplateGroup.parmTemplates;
+            IEnumerable<dynamic> parmTemplates = parmTemplateGroup.parmTemplates;
             foreach (var parmTemplate in parmTemplates)
             {
                 ParmTemplate template = parmTemplate.ToObject<ParmTemplate>();
-                if (template.isHidden)
-                    continue;
                 switch (template.dataType)
                 {
                     case (ParmData.Int):
@@ -53,7 +51,7 @@ namespace Harpoon
     }
 
     [Serializable]
-    public class FloatParm : HouParm
+    public class FloatParm : Parm
     {
         public override ParmTemplate parmTemplate => template;
         public FloatParmTemplate template;
@@ -68,11 +66,43 @@ namespace Harpoon
 
         public override void GUILayout()
         {
+            if(template.isHidden)
+                return;
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField(template.label);
-            for (int i = 0; i < template.numComponents; ++i)
+            if (template.numComponents == 1)
             {
-                value[i] = EditorGUILayout.FloatField(value[i]);
+                if (template.minIsStrict && template.maxIsStrict)
+                {
+                    value[0] = EditorGUILayout.Slider(value[0], template.minValue, template.maxValue);
+                }
+                else
+                {
+                    value[0] = EditorGUILayout.FloatField(value[0]);
+                }
+                if (template.minIsStrict)
+                {
+                    value[0] = Mathf.Max(value[0], template.minValue);
+                }
+                if (template.maxIsStrict)
+                {
+                    value[0] = Mathf.Min(value[0], template.maxValue);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < template.numComponents; ++i)
+                {
+                    value[i] = EditorGUILayout.FloatField(value[i]);
+                    if (template.minIsStrict)
+                    {
+                        value[i] = Mathf.Max(value[i], template.minValue);
+                    }
+                    if (template.maxIsStrict)
+                    {
+                        value[i] = Mathf.Min(value[i], template.maxValue);
+                    }
+                }
             }
             EditorGUILayout.EndHorizontal();
         }
@@ -84,7 +114,7 @@ namespace Harpoon
     }
     
     [Serializable]
-    public class IntParm : HouParm
+    public class IntParm : Parm
     {
         public override ParmTemplate parmTemplate => template;
         public IntParmTemplate template;
@@ -103,18 +133,54 @@ namespace Harpoon
 
         public override void GUILayout()
         {
+            if(template.isHidden)
+                return;
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField(template.label);
-            for (int i = 0; i < template.numComponents; ++i)
+            if (template.numComponents == 1)
             {
-                value[i] = EditorGUILayout.IntField(value[i]);
+                if (template.menuItems != null && template.menuItems.Length > 0)
+                {
+                    value[0] = EditorGUILayout.Popup(value[0], template.menuLabels);
+                }
+                else if (template.minIsStrict && template.maxIsStrict)
+                {
+                    value[0] = EditorGUILayout.IntSlider(value[0], template.minValue, template.maxValue);
+                }
+                else
+                {
+                    value[0] = EditorGUILayout.IntField(value[0]);
+                }
+                if (template.minIsStrict)
+                {
+                    value[0] = Mathf.Max(value[0], template.minValue);
+                }
+                if (template.maxIsStrict)
+                {
+                    value[0] = Mathf.Min(value[0], template.maxValue);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < template.numComponents; ++i)
+                {
+                    value[i] = EditorGUILayout.IntField(value[i]);
+                    if (template.minIsStrict)
+                    {
+                        value[i] = Mathf.Max(value[i], template.minValue);
+                    }
+                    if (template.maxIsStrict)
+                    {
+                        value[i] = Mathf.Min(value[i], template.maxValue);
+                    }
+                }
             }
             EditorGUILayout.EndHorizontal();
         }
     }
     
     [Serializable]
-    public class StringParm : HouParm
+    public class StringParm : Parm
     {
         public override ParmTemplate parmTemplate => template;
         public StringParmTemplate template;
@@ -136,6 +202,8 @@ namespace Harpoon
 
         public override void GUILayout()
         {
+            if(template.isHidden)
+                return;
             switch (template.stringType)
             {
                 case StringParmType.FileReference:
