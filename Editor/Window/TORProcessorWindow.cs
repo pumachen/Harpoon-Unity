@@ -14,56 +14,56 @@ using UnityEngine.Networking;
 
 namespace Harpoon
 {
-	public class HDAProcessorWindow : EditorWindow
+	public class TORProcessorWindow : EditorWindow
 	{
-		private int hdaIdx = 0;
-		private string[] hdas = new string[0];
-		private string[] hdaNames = new string[0];
+		private int torIdx = 0;
+		private string[] tors = new string[0];
+		private string[] torNames = new string[0];
 		private Parm[] parms;
 		private float progress = 1.0f;
 		private static int timeout = 3000;
 
-		private string hda => hdas[hdaIdx];
+		private string tor => tors[torIdx];
 	
-		[MenuItem("Window/Harpoon/HDAProcessor")]
+		[MenuItem("Harpoon/TORProcessor")]
 		public static void Open()
 		{
-			HDAProcessorWindow window = CreateWindow<HDAProcessorWindow>();
-			window.titleContent = new GUIContent("HDA Processor");
+			TORProcessorWindow window = CreateWindow<TORProcessorWindow>();
+			window.titleContent = new GUIContent("TOR Processor");
 			window.Show();
 		}
 
 		private void OnEnable()
 		{
-			HDALibrary.GetHDALibraryAsync(hdaLibrary =>
+			TORLibrary.GetTORLibraryAsync(torLibrary =>
 			{
-				hdas = new string[hdaLibrary.Length];
-				hdaNames = new string[hdaLibrary.Length];
-				for (int i = 0; i < hdaLibrary.Length; ++i)
+				tors = new string[torLibrary.Length];
+				torNames = new string[torLibrary.Length];
+				for (int i = 0; i < torLibrary.Length; ++i)
 				{
-					hdas[i] = hdaLibrary[i].hda;
-					hdaNames[i] = hdaLibrary[i].name;
+					tors[i] = torLibrary[i];
+					torNames[i] = Path.GetFileNameWithoutExtension(torLibrary[i]);
 				}
-				UpdateHDAParms();
+				UpdateTORParms();
 			});
 		}
 
-		void UpdateHDAParms()
+		void UpdateTORParms()
 		{
-			HDAProcessor.GetHDAHeaderAsync(hda, (hdaHeader) =>
+			TORProcessor.GetTORHeaderAsync(tor, (torHeader) =>
 			{
-				IEnumerable<Parm> _parms = Parm.CreateParms(hdaHeader.parmTemplateGroup);
+				IEnumerable<Parm> _parms = Parm.CreateParms(torHeader);
 				parms = _parms.ToArray();
 			});
 		}
 
 		private void OnGUI()
 		{
-			int selectedIdx = EditorGUILayout.Popup("HDA", hdaIdx, hdaNames);
-			if (selectedIdx != hdaIdx)
+			int selectedIdx = EditorGUILayout.Popup("TOR", torIdx, torNames);
+			if (selectedIdx != torIdx)
 			{
-				hdaIdx = selectedIdx;
-				UpdateHDAParms();
+				torIdx = selectedIdx;
+				UpdateTORParms();
 			}
 
 			if (parms != null)
@@ -78,7 +78,7 @@ namespace Harpoon
 
 			if (GUILayout.Button("Save As Preset"))
 			{
-				CreateHDAProcessorPreset();
+				//CreateTORProcessorPreset();
 			}
 
 			if (progress < 1.0f)
@@ -92,29 +92,29 @@ namespace Harpoon
             }
 		}
 
-		void CreateHDAProcessorPreset()
+		/*void CreateTORProcessorPreset()
 		{
-			var hdaProcessorJob = ScriptableObject.CreateInstance<HDAProcessorPreset>();
-			hdaProcessorJob.intParms = parms.Where(p => p is IntParm).Select(p => p as IntParm).ToArray();
-			hdaProcessorJob.floatParms = parms.Where(p => p is FloatParm).Select(p => p as FloatParm).ToArray();
-			hdaProcessorJob.stringParms = parms.Where(p => p is StringParm).Select(p => p as StringParm).ToArray();
-			hdaProcessorJob.hda = hda;
+			var torProcessorJob = ScriptableObject.CreateInstance<TORProcessorPreset>();
+			torProcessorJob.intParms = parms.Where(p => p is IntParm).Select(p => p as IntParm).ToArray();
+			torProcessorJob.floatParms = parms.Where(p => p is FloatParm).Select(p => p as FloatParm).ToArray();
+			torProcessorJob.stringParms = parms.Where(p => p is StringParm).Select(p => p as StringParm).ToArray();
+			torProcessorJob.tor = tor;
 			string fileName = EditorUtility.SaveFilePanelInProject(
-				"Save HDA Processor Preset", 
-				$"{Path.GetFileNameWithoutExtension(hda)}", "asset", "");
+				"Save TOR Processor Preset", 
+				$"{Path.GetFileNameWithoutExtension(tor)}", "asset", "");
 			if (string.IsNullOrEmpty(fileName))
 				return;
 			if (!string.IsNullOrEmpty(AssetDatabase.AssetPathToGUID(fileName)))
 			{
 				AssetDatabase.DeleteAsset(fileName);
 			}
-			AssetDatabase.CreateAsset(hdaProcessorJob, fileName);
-		}
+			AssetDatabase.CreateAsset(torProcessorJob, fileName);
+		}*/
 
 		void Cook()
 		{
 			progress = 0.0f;
-			HDAProcessor.ProcessHDAAsync(hda, parms, 
+			TORProcessor.ProcessTORAsync(tor, parms, 
 				zip =>
 				{
 					string outputDir = EditorUtility.SaveFolderPanel("Output Dir", Application.dataPath, "Output");

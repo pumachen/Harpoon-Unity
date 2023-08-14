@@ -11,8 +11,7 @@ namespace Harpoon
 {
 	public static class TORLibrary
 	{
-		[MenuItem("Harpoon/TORLibrary")]
-		public static void TorLibrary()
+		/*public static string[] TorLibrary()
 		{
 			GetTORLibraryAsync((tors) =>
 			{
@@ -21,7 +20,7 @@ namespace Harpoon
 					Debug.Log(tor);
 				}
 			});
-		}
+		}*/
 		
 		public static void GetTORLibraryAsync(Action<string[]> completed, Action failed = null)
 		{
@@ -33,7 +32,6 @@ namespace Harpoon
 				{
 					dynamic torLibrary = JsonConvert.DeserializeObject(request.downloadHandler.text);
 					string[] tors = torLibrary.ToObject<string[]>();
-					int i = 0;
 					completed?.Invoke(tors);
 				}
 				else

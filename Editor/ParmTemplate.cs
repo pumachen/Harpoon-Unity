@@ -26,7 +26,7 @@ namespace Harpoon
 		public bool joinsWithNext;
 		// public string disableWhen;
 		// public string conditionals;
-		public Dictionary<string, string> tags;
+		//public Dictionary<string, string> tags;
 		// public string scriptCallback;
 		// public string scriptCallbackLanguage;
 	}
@@ -55,9 +55,11 @@ namespace Harpoon
 		public bool maxIsStrict;
 		//public string itemGeneratorScript;
 		//public string itemGeneratorScriptLanguage;
-		[JsonConverter(typeof(StringEnumConverter))]
-		public MenuType menuType;
-		public bool menuUseToken;
+		//[JsonConverter(typeof(StringEnumConverter))]
+		//public MenuType menuType;
+		public string[] menuItems;
+		public string[] menuLabels;
+		//public bool menuUseToken;
 	}
 	
 	[Serializable]
@@ -75,8 +77,8 @@ namespace Harpoon
 		//public string[] iconNames;
 		//public string itemGeneratorScript;
 		//public string itemGeneratorScriptLanguage;
-		[JsonConverter(typeof(StringEnumConverter))]
-		public MenuType menuType;
-		public bool menuUseToken;
+		//[JsonConverter(typeof(StringEnumConverter))]
+		//public MenuType menuType;
+		//public bool menuUseToken;
 	}
 }

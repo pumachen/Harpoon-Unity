@@ -15,7 +15,7 @@ using UnityEditor.PackageManager;
 
 namespace Harpoon
 {
-	/*public static class TORProcessor
+	public static class TORProcessor
 	{
 		private static Uri GetUri(string torName)
 		{
@@ -59,12 +59,12 @@ namespace Harpoon
 			}
 		}
 
-		public static void ProcessTORAsync(this TORProcessorPreset preset, Action<ZipArchive> completed, Action failed = null, int timeout = 300)
+		/*public static void ProcessTORAsync(this TORProcessorPreset preset, Action<ZipArchive> completed, Action failed = null, int timeout = 300)
 		{
 			ProcessTORAsync(preset.tor, preset.parms, completed, failed, timeout);
-		}
+		}*/
 		
-		public static void ProcessTORAsync(string tor, IEnumerable<HouParm> parms, Action<ZipArchive> completed,
+		public static void ProcessTORAsync(string tor, IEnumerable<Parm> parms, Action<ZipArchive> completed,
 			Action failed = null, int timeout = 3000)
 		{
 			Uri uri = GetUri(tor);
@@ -97,7 +97,7 @@ namespace Harpoon
 			});
 		}
 		
-		public static IEnumerator ProcessTORRoutine(string tor, IEnumerable<HouParm> parms, Action<ZipArchive> completed,
+		public static IEnumerator ProcessTORRoutine(string tor, IEnumerable<Parm> parms, Action<ZipArchive> completed,
         			Action failed = null, int timeout = 300)
 		{
 			Uri uri = GetUri(tor);
@@ -132,5 +132,5 @@ namespace Harpoon
                 File.Delete(downloadedFile);
             }
 		}
-	}*/
+	}
 }
